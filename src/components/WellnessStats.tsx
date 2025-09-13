@@ -60,16 +60,16 @@ export const WellnessStats = ({ moods }: WellnessStatsProps) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {stats.map((stat, index) => (
-        <Card key={index} className="p-4 text-center bg-gradient-wellness/10 border-0 hover:shadow-glow transition-all duration-300">
-          <div className="flex justify-center mb-2">
+        <Card key={index} className="p-6 text-center bg-gradient-wellness/10 border-0 hover:shadow-soft transition-all duration-500 hover:scale-105 rounded-3xl backdrop-blur group">
+          <div className="flex justify-center mb-3 animate-float">
             {stat.icon}
           </div>
-          <div className={`text-2xl font-bold ${stat.color} mb-1`}>
+          <div className={`text-3xl font-bold ${stat.color} mb-2 font-rounded`}>
             {stat.value}
           </div>
-          <div className="text-xs text-muted-foreground">
+          <div className="text-sm text-muted-foreground font-rounded">
             {stat.label}
           </div>
         </Card>

@@ -24,9 +24,9 @@ export const MoodChart = ({ moods }: MoodChartProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <div className="bg-card p-3 rounded-lg border shadow-lg">
-          <p className="font-medium">{label}</p>
-          <p className="text-primary">
+        <div className="bg-card/90 backdrop-blur p-4 rounded-2xl border shadow-soft">
+          <p className="font-medium font-rounded">{label}</p>
+          <p className="text-primary font-rounded">
             {data.emoji} {data.label}
           </p>
         </div>
@@ -36,11 +36,11 @@ export const MoodChart = ({ moods }: MoodChartProps) => {
   };
 
   return (
-    <Card className="p-6 bg-gradient-mood border-0 shadow-wellness">
-      <h3 className="text-xl font-semibold mb-4">Your Mood Trend</h3>
+    <Card className="p-8 bg-gradient-mood border-0 shadow-soft rounded-3xl backdrop-blur-sm">
+      <h3 className="text-2xl font-medium mb-6 font-rounded">Your Mood Trend</h3>
       
       {chartData.length > 0 ? (
-        <div className="h-64">
+        <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -60,16 +60,16 @@ export const MoodChart = ({ moods }: MoodChartProps) => {
                 type="monotone" 
                 dataKey="mood" 
                 stroke="hsl(var(--primary))"
-                strokeWidth={3}
-                dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8, stroke: "hsl(var(--primary-glow))", strokeWidth: 2 }}
+                strokeWidth={4}
+                dot={{ fill: "hsl(var(--primary))", strokeWidth: 3, r: 8 }}
+                activeDot={{ r: 10, stroke: "hsl(var(--primary-glow))", strokeWidth: 3, fill: "hsl(var(--background))" }}
               />
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
-        <div className="h-64 flex items-center justify-center text-muted-foreground">
-          <p>Start tracking your mood to see trends!</p>
+        <div className="h-72 flex items-center justify-center text-muted-foreground">
+          <p className="font-rounded text-lg">Start tracking your mood to see trends!</p>
         </div>
       )}
     </Card>

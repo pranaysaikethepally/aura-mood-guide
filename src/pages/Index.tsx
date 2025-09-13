@@ -43,34 +43,34 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-calm">
       {/* Hero Section */}
-      <section className="relative py-20 px-4">
+      <section className="relative py-24 px-4">
         <div className="container mx-auto text-center">
-          <div className="relative mb-8">
+          <div className="relative mb-12">
             <img 
               src={wellnessHero} 
               alt="Wellness and mental health illustration" 
-              className="w-full max-w-2xl mx-auto rounded-3xl shadow-wellness"
+              className="w-full max-w-2xl mx-auto rounded-3xl shadow-soft animate-float"
             />
-            <div className="absolute inset-0 bg-gradient-wellness/20 rounded-3xl"></div>
+            <div className="absolute inset-0 bg-gradient-wellness/10 rounded-3xl"></div>
           </div>
           
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-wellness bg-clip-text text-transparent">
+          <h1 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-wellness bg-clip-text text-transparent font-rounded">
             Student Wellness Monitor
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto font-rounded leading-relaxed">
             Track your daily mood, discover patterns, and receive personalized wellness recommendations to support your mental health journey.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center">
             <Button 
               onClick={() => setShowMoodSelector(true)}
-              className="bg-gradient-wellness hover:shadow-glow transition-all duration-300 text-lg px-8 py-3"
+              className="bg-gradient-wellness hover:shadow-glow transition-all duration-500 text-lg px-10 py-4 rounded-2xl font-rounded font-medium hover:scale-105"
               disabled={!!todayMood}
             >
               <Heart className="w-5 h-5 mr-2" />
               {todayMood ? "Mood Recorded Today" : "Check In Today"}
             </Button>
-            <Button variant="outline" className="text-lg px-8 py-3 hover:bg-primary/10 transition-colors">
+            <Button variant="outline" className="text-lg px-10 py-4 hover:bg-primary/10 transition-all duration-500 rounded-2xl font-rounded font-medium hover:scale-105">
               <BarChart3 className="w-5 h-5 mr-2" />
               View Analytics
             </Button>
@@ -79,8 +79,8 @@ const Index = () => {
       </section>
 
       {/* Main Dashboard */}
-      <section className="py-12 px-4">
-        <div className="container mx-auto max-w-6xl space-y-8">
+      <section className="py-16 px-4">
+        <div className="container mx-auto max-w-6xl space-y-12">
           {/* Stats Overview */}
           <WellnessStats moods={moods} />
 
@@ -92,7 +92,7 @@ const Index = () => {
           )}
 
           {/* Charts and Recommendations */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-12">
             <MoodChart moods={moods} />
             <div>
               <WellnessRecommendations />
@@ -101,19 +101,19 @@ const Index = () => {
 
           {/* Recent Moods */}
           {moods.length > 0 && (
-            <div className="bg-card/50 backdrop-blur rounded-2xl p-6 border-0 shadow-wellness">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Brain className="w-5 h-5 text-primary" />
+            <div className="bg-card/60 backdrop-blur rounded-3xl p-8 border-0 shadow-soft">
+              <h3 className="text-2xl font-medium mb-6 flex items-center gap-3 font-rounded">
+                <Brain className="w-6 h-6 text-primary animate-soft-pulse" />
                 Recent Check-ins
               </h3>
-              <div className="grid gap-3">
+              <div className="grid gap-4">
                 {moods.slice(-5).reverse().map((mood, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-background/50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <span className="text-2xl">{mood.emoji}</span>
+                  <div key={index} className="flex items-center justify-between p-4 bg-background/60 backdrop-blur rounded-2xl hover:shadow-soft transition-all duration-300">
+                    <div className="flex items-center gap-4">
+                      <span className="text-3xl animate-float">{mood.emoji}</span>
                       <div>
-                        <p className="font-medium">{mood.label}</p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="font-medium font-rounded text-lg">{mood.label}</p>
+                        <p className="text-sm text-muted-foreground font-rounded">
                           {mood.timestamp.toLocaleDateString()}
                         </p>
                       </div>

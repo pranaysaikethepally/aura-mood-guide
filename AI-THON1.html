@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Wellness Monitor</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'midnight': '#121826',
+                        'deep-blue': '#1E293B',
+                        'lavender': '#C4B5FD',
+                        'soft-pink': '#FBCFE8',
+                        'mint': '#99F6E4',
+                        'light-blue': '#93C5FD',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #818CF8;
+            --primary-light: #A5B4FC;
+            --secondary: #C4B5FD;
+            --accent: #FBCFE8;
+            --dark: #121826;
+            --light: #F8FAFC;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, #1E293B 100%);
+            color: var(--light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(129, 140, 248, 0.5);
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .mood-carousel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            height: 200px;
+            position: relative;
+        }
+        
+        .mood-option {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+        
+        .mood-option.selected {
+            transform: translateZ(40px) scale(1.2);
+            box-shadow: 0 0 25px rgba(129, 140, 248, 0.8);
+        }
+        
+        .tag-bubble {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .tag-bubble:hover {
+            background: rgba(129, 140, 248, 0.3);
+            transform: translateY(-3px);
+        }
+        
+        .tag-bubble.active {
+            background: var(--primary);
+            box-shadow: 0 0 15px rgba(129, 140, 248, 0.5);
+        }
+        
+        .journal-textarea {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            color: white;
+            resize: none;
+            transition: all 0.3s ease;
+        }
+        
+        .journal-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(129, 140, 248, 0.3);
+        }
+        
+        .voice-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .voice-btn.recording {
+            background: rgba(239, 68, 68, 0.3);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+        
+        .recommendation-card {
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .recommendation-card:hover {
+            transform: translateY(-5px);
+            border-left: 3px solid var(--primary);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .mood-timeline {
+            height: 200px;
+            position: relative;
+        }
+        
+        .mood-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            transform: translateX(-50%);
+        }
+        
+        .mood-line {
+            position: absolute;
+            bottom: 6px;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .morphing-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.2;
+            background: radial-gradient(circle at 20% 30%, var(--primary-light) 0%, transparent 30%),
+                        radial-gradient(circle at 80% 70%, var(--secondary) 0%, transparent 30%),
+                        radial-gradient(circle at 40% 80%, var(--accent) 0%, transparent 30%);
+            background-size: 200% 200%;
+            animation: morph 15s ease-in-out infinite;
+        }
+        
+        @keyframes morph {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+        
+        .typewriter h2 {
+            overflow: hidden;
+            border-right: 0.15em solid var(--primary);
+            white-space: nowrap;
+            margin: 0 auto;
+            letter-spacing: 0.15em;
+            animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0 }
+            to { width: 100% }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--primary) }
+        }
+    </style>
+</head>
+<body>
+    <div class="morphing-background"></div>
+    
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Header -->
+        <header class="flex items-center justify-between mb-12">
+            <div class="flex items-center gap-4">
+                <div class="glass-card w-16 h-16 rounded-2xl flex items-center justify-center neon-glow">
+                    <i class="fas fa-brain text-2xl text-lavender"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-lavender to-soft-pink bg-clip-text text-transparent">Student Wellness Monitor</h1>
+                    <p class="text-light-blue">Track your mood and mental wellbeing with elegance</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="glass-card p-3 rounded-xl theme-toggle">
+                    <i class="fas fa-moon text-lavender"></i>
+                </button>
+                <div class="flex items-center gap-2 glass-card px-3 py-2 rounded-xl">
+                    <label class="flex items-center gap-2 text-sm">
+                        <input type="checkbox" id="reduce-motion" class="scale-125">
+                        Reduce motion
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- Welcome Message -->
+        <div class="glass-card p-8 mb-12 relative overflow-hidden fade-in">
+            <div class="absolute -top-16 -right-16 w-40 h-40 rounded-full bg-lavender opacity-20 blur-xl"></div>
+            <div class="absolute -bottom-16 -left-16 w-40 h-40 rounded-full bg-soft-pink opacity-20 blur-xl"></div>
+            
+            <div class="relative z-10">
+                <div class="typewriter mb-4">
+                    <h2 class="text-2xl font-bold">Welcome to your wellness journey</h2>
+                </div>
+                <p class="text-gray-300 mb-4">Start your daily check-in to track your mood and get personalized recommendations. Your mental health matters.</p>
+                <div class="flex items-center gap-2 text-sm text-light-blue">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Your data is private and secure</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Left Column - Inputs -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Mood Selection -->
+                <section class="glass-card p-8">
+                    <h3 class="font-semibold text-lg mb-6 text-lavender flex items-center gap-2">
+                        <i class="fas fa-smile"></i>
+                        How are you feeling today?
+                    </h3>
+                    
+                    <div class="mood-carousel" id="mood-carousel">
+                        <!-- Mood options will be dynamically positioned -->
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <p id="selected-mood-label" class="text-light-blue">Select your mood</p>
+                    </div>
+                </section>
+
+                <!-- Tags -->
+                <section class="glass-card p-8">
+                    <h4 class="text-sm font-medium mb-4 text-gray-300 flex items-center gap-2">
+                        <i class="fas fa-tags"></i>
+                        Add tags to describe your feelings
+                    </h4>
+                    <div class="flex flex-wrap justify-center gap-2">
+                        <div class="tag-bubble" data-tag="lonely">#lonely</div>
+                        <div class="tag-bubble" data-tag="stressed">#stressed</div>
+                        <div class="tag-bubble" data-tag="tired">#tired</div>
+                        <div class="tag-bubble" data-tag="grateful">#grateful</div>
+                        <div class="tag-bubble" data-tag="productive">#productive</div>
+                        <div class="tag-bubble" data-tag="nervous">#nervous</div>
+                        <div class="tag-bubble" data-tag="excited">#excited</div>
+                        <div class="tag-bubble" data-tag="focused">#focused</div>
+                    </div>
+                </section>
+
+                <!-- Journal -->
+                <section class="glass-card p-8">
+                    <h4 class="text-sm font-medium mb-4 text-gray-300 flex items-center gap-2">
+                        <i class="fas fa-book-open"></i>
+                        Journal your thoughts
+                    </h4>
+                    <textarea class="journal-textarea w-full min-h-[150px]" placeholder="How has your day been? What's on your mind?"></textarea>
+                    <div class="flex justify-between items-center mt-4">
+                        <div class="flex gap-2">
+                            <button class="voice-btn glass-card px-4 py-2 rounded-xl flex items-center gap-2">
+                                <i class="fas fa-microphone text-lavender"></i>
+                                Voice Input
+                            </button>
+                            <button class="clear-btn glass-card px-4 py-2 rounded-xl">
+                                Clear
+                            </button>
+                        </div>
+                        <button class="save-btn px-6 py-3 rounded-xl bg-gradient-to-r from-lavender to-soft-pink text-white font-medium shadow-lg hover:shadow-xl transition">
+                            Save Entry
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column - Recommendations -->
+            <div class="space-y-8">
+                <!-- Recommendations -->
+                <section class="glass-card p-6">
+                    <h3 class="font-semibold text-lg mb-4 text-lavender flex items-center gap-2">
+                        <i class="fas fa-lightbulb"></i>
+                        Recommended for you
+                    </h3>
+                    <div class="space-y-4">
+                        <div class="recommendation-card glass-card p-4 flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-lavender flex items-center justify-center text-white">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Breathing exercise <span class="text-xs text-gray-400">• 5 min</span></div>
+                                <div class="text-sm text-gray-300 mt-1">Calm your nervous system with guided breathing</div>
+                            </div>
+                        </div>
+                        <div class="recommendation-card glass-card p-4 flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-soft-pink flex items-center justify-center text-white">
+                                <i class="fas fa-walking"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Nature walk <span class="text-xs text-gray-400">• 15 min</span></div>
+                                <div class="text-sm text-gray-300 mt-1">Spend time in nature to reduce stress</div>
+                            </div>
+                        </div>
+                        <div class="recommendation-card glass-card p-4 flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-mint flex items-center justify-center text-dark">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Gratitude journal <span class="text-xs text-gray-400">• 10 min</span></div>
+                                <div class="text-sm text-gray-300 mt-1">Write down three things you're grateful for</div>
+                            </div>
+                        </div>
+                        <div class="recommendation-card glass-card p-4 flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-light-blue flex items-center justify-center text-white">
+                                <i class="fas fa-spa"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">Meditation <span class="text-xs text-gray-400">• 20 min</span></div>
+                                <div class="text-sm text-gray-300 mt-1">Guided meditation for mindfulness</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Stats -->
+                <section class="glass-card p-6">
+                    <h3 class="font-semibold text-lg mb-4 text-lavender flex items-center gap-2">
+                        <i class="fas fa-chart-line"></i>
+                        Your wellness stats
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="stats-number">14</div>
+                            <div class="text-xs text-gray-400">Day streak</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="stats-number">78%</div>
+                            <div class="text-xs text-gray-400">Positive days</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="stats-number">5.2</div>
+                            <div class="text-xs text-gray-400">Avg. mood</div>
+                        </div>
+                        <div class="glass-card p-4 rounded-xl text-center">
+                            <div class="stats-number">12</div>
+                            <div class="text-xs text-gray-400">Activities</div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Mood Timeline -->
+            <section class="glass-card p-6">
+                <h3 class="font-semibold text-lg mb-4 text-lavender flex items-center gap-2">
+                    <i class="fas fa-chart-area"></i>
+                    Mood timeline
+                </h3>
+                <div class="mood-timeline" id="mood-timeline">
+                    <!-- Mood chart will be drawn by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Mood Distribution -->
+            <section class="glass-card p-6">
+                <h3 class="font-semibold text-lg mb-4 text-lavender flex items-center gap-2">
+                    <i class="fas fa-chart-pie"></i>
+                    Mood distribution
+                </h3>
+                <div class="h-64 flex items-center justify-center">
+                    <canvas id="mood-distribution-chart"></canvas>
+                </div>
+            </section>
+        </div>
+
+        <!-- Recent Entries -->
+        <section class="mt-12 glass-card p-8">
+            <h3 class="font-semibold text-lg mb-6 text-lavender flex items-center gap-2">
+                <i class="fas fa-history"></i>
+                Recent entries
+            </h3>
+            <div class="space-y-6">
+                <div class="glass-card p-5 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-lavender flex items-center justify-center text-2xl">
+                        😌
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center flex-wrap">
+                            <div class="font-medium">Peaceful • Today</div>
+                            <div class="text-sm text-gray-400">Sentiment: +0.75</div>
+                        </div>
+                        <div class="mt-2 flex gap-2 flex-wrap">
+                            <span class="tag-bubble active">#grateful</span>
+                            <span class="tag-bubble active">#productive</span>
+                        </div>
+                        <p class="text-gray-300 mt-2">Had a great study session today and finished my project ahead of schedule. Feeling accomplished.</p>
+                    </div>
+                </div>
+                <div class="glass-card p-5 flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-soft-pink flex items-center justify-center text-2xl">
+                        😰
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center flex-wrap">
+                            <div class="font-medium">Anxious • Yesterday</div>
+                            <div class="text-sm text-gray-400">Sentiment: -0.34</div>
+                        </div>
+                        <div class="mt-2 flex gap-2 flex-wrap">
+                            <span class="tag-bubble active">#stressed</span>
+                            <span class="tag-bubble active">#nervous</span>
+                        </div>
+                        <p class="text-gray-300 mt-2">Feeling overwhelmed with upcoming exams. Need to create a better study schedule.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-12 text-center text-gray-400 text-sm pb-8">
+            <p>Student Wellness Monitor • Designed with mental health in mind</p>
+            <p class="mt-2 text-xs">Your wellbeing is our priority</p>
+        </footer>
+    </div>
+
+    <script>
+        // Mood data
+        const moods = [
+            { emoji: "😔", name: "Sad", color: "#93C5FD" },
+            { emoji: "😰", name: "Anxious", color: "#C4B5FD" },
+            { emoji: "😐", name: "Neutral", color: "#9CA3AF" },
+            { emoji: "😊", name: "Calm", color: "#99F6E4" },
+            { emoji: "😌", name: "Peaceful", color: "#A5B4FC" },
+            { emoji: "😄", name: "Joyful", color: "#FBCFE8" }
+        ];
+
+        // Initialize the mood carousel
+        function initMoodCarousel() {
+            const carousel = document.getElementById('mood-carousel');
+            const centerIndex = 2; // Neutral is the center
+            
+            moods.forEach((mood, index) => {
+                const angle = (index - centerIndex) * (Math.PI / 3);
+                const radius = 120;
+                
+                const x = Math.sin(angle) * radius;
+                const z = Math.cos(angle) * radius - radius;
+                
+                const moodElement = document.createElement('div');
+                moodElement.className = 'mood-option';
+                moodElement.innerHTML = mood.emoji;
+                moodElement.style.backgroundColor = `${mood.color}30`;
+                moodElement.style.border = `2px solid ${mood.color}`;
+                moodElement.style.transform = `translate3d(${x}px, 0, ${z}px)`;
+                moodElement.dataset.mood = mood.name.toLowerCase();
+                
+                moodElement.addEventListener('click', () => {
+                    document.querySelectorAll('.mood-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    moodElement.classList.add('selected');
+                    document.getElementById('selected-mood-label').textContent = mood.name;
+                });
+                
+                carousel.appendChild(moodElement);
+            });
+            
+            // Select the neutral mood by default
+            document.querySelectorAll('.mood-option')[centerIndex].classList.add('selected');
+            document.getElementById('selected-mood-label').textContent = 'Neutral';
+        }
+
+        // Initialize tag selection
+        function initTagSelection() {
+            const tagBubbles = document.querySelectorAll('.tag-bubble');
+            tagBubbles.forEach(bubble => {
+                bubble.addEventListener('click', () => {
+                    bubble.classList.toggle('active');
+                });
+            });
+        }
+
+        // Initialize mood timeline
+        function initMoodTimeline() {
+            const timeline = document.getElementById('mood-timeline');
+            const days = 7;
+            const moodValues = [3, 4, 5, 4, 2, 3, 5]; // Sample data
+            
+            // Clear previous content
+            timeline.innerHTML = '';
+            
+            // Create day labels and mood dots
+            for (let i = 0; i < days; i++) {
+                const dayLabel = document.createElement('div');
+                dayLabel.className = 'absolute text-xs text-gray-400';
+                dayLabel.style.left = `${(i / (days - 1)) * 100}%`;
+                dayLabel.style.bottom = '-25px';
+                dayLabel.textContent = `Day ${i + 1}`;
+                timeline.appendChild(dayLabel);
+                
+                const moodValue = moodValues[i];
+                const moodDot = document.createElement('div');
+                moodDot.className = 'mood-dot';
+                moodDot.style.left = `${(i / (days - 1)) * 100}%`;
+                moodDot.style.backgroundColor = moods[moodValue - 1].color;
+                moodDot.style.bottom = `${(moodValue / 5) * 100}%`;
+                timeline.appendChild(moodDot);
+            }
+            
+            // Create connecting lines
+            for (let i = 0; i < days - 1; i++) {
+                const startValue = moodValues[i];
+                const endValue = moodValues[i + 1];
+                
+                const line = document.createElement('div');
+                line.className = 'mood-line';
+                
+                const startX = (i / (days - 1)) * 100;
+                const endX = ((i + 1) / (days - 1)) * 100;
+                
+                const startY = (startValue / 5) * 100;
+                const endY = (endValue / 5) * 100;
+                
+                const length = Math.sqrt(Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2));
+                const angle = Math.atan2(endY - startY, endX - startX) * 180 / Math.PI;
+                
+                line.style.width = `${length}%`;
+                line.style.transform = `rotate(${angle}deg)`;
+                line.style.transformOrigin = '0 0';
+                line.style.bottom = `${startY}%`;
+                line.style.left = `${startX}%`;
+                
+                timeline.appendChild(line);
+            }
+        }
+
+        // Initialize mood distribution chart
+        function initMoodDistributionChart() {
+            const ctx = document.getElementById('mood-distribution-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: moods.map(m => m.name),
+                    datasets: [{
+                        data: [15, 20, 25, 15, 10, 15], // Sample data
+                        backgroundColor: moods.map(m => m.color),
+                        borderWidth: 0,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#E5E7EB',
+                                font: {
+                                    family: 'Poppins'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const container = document.querySelector('body');
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                
+                const hue = Math.random() * 360;
+                particle.style.backgroundColor = `hsla(${hue}, 70%, 70%, 0.3)`;
+                
+                container.appendChild(particle);
+                
+                // Animate the particle
+                animateParticle(particle);
+            }
+        }
+        
+        function animateParticle(particle) {
+            const duration = Math.random() * 10 + 10;
+            
+            particle.animate([
+                { transform: 'translateY(0px)', opacity: 0.7 },
+                { transform: `translateY(${Math.random() * 50 - 25}px) translateX(${Math.random() * 50 - 25}px)`, opacity: 0.3 }
+            ], {
+                duration: duration * 1000,
+                iterations: Infinity,
+                direction: 'alternate',
+                easing: 'ease-in-out'
+            });
+        }
+
+        // Initialize everything when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            initMoodCarousel();
+            initTagSelection();
+            initMoodTimeline();
+            initMoodDistributionChart();
+            createParticles();
+            
+            // Add event listeners
+            document.querySelector('.voice-btn').addEventListener('click', function() {
+                this.classList.toggle('recording');
+                if (this.classList.contains('recording')) {
+                    this.innerHTML = '<i class="fas fa-stop-circle text-red-400"></i> Stop Recording';
+                    // Simulate speech recognition
+                    setTimeout(() => {
+                        document.querySelector('.journal-textarea').value += " I'm feeling okay today but a bit tired from studying all night. Need to get better sleep.";
+                        this.classList.remove('recording');
+                        this.innerHTML = '<i class="fas fa-microphone text-lavender"></i> Voice Input';
+                    }, 3000);
+                }
+            });
+            
+            document.querySelector('.clear-btn').addEventListener('click', () => {
+                document.querySelector('.journal-textarea').value = '';
+                document.querySelectorAll('.mood-option').forEach(opt => opt.classList.remove('selected'));
+                document.querySelectorAll('.tag-bubble').forEach(bubble => bubble.classList.remove('active'));
+                document.getElementById('selected-mood-label').textContent = 'Select your mood';
+            });
+            
+            document.querySelector('.save-btn').addEventListener('click', () => {
+                const selectedMood = document.querySelector('.mood-option.selected');
+                if (!selectedMood) {
+                    const btn = document.querySelector('.save-btn');
+                    btn.classList.add('bg-red-500');
+                    setTimeout(() => btn.classList.remove('bg-red-500'), 1000);
+                    return;
+                }
+                
+                const btn = document.querySelector('.save-btn');
+                btn.textContent = 'Saved!';
+                btn.classList.remove('bg-gradient-to-r');
+                btn.classList.add('bg-green-500');
+                
+                setTimeout(() => {
+                    btn.textContent = 'Save Entry';
+                    btn.classList.remove('bg-green-500');
+                    btn.classList.add('bg-gradient-to-r');
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>
